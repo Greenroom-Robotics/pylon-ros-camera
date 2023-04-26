@@ -56,6 +56,7 @@ struct USBCameraTrait
     typedef Basler_UniversalCameraParams::ShutterModeEnums ShutterModeEnums;
     typedef Basler_UniversalCameraParams::UserOutputSelectorEnums UserOutputSelectorEnums;
     typedef Basler_UniversalCameraParams::AcquisitionStatusSelectorEnums AcquisitionStatusSelectorEnums;
+    typedef Basler_UniversalCameraParams::AcquisitionModeEnums AcquisitionModeEnums;
     typedef Basler_UniversalCameraParams::SensorReadoutModeEnums SensorReadoutModeEnums;
     typedef Basler_UniversalCameraParams::TriggerSelectorEnums TriggerSelectorEnums;
     typedef Basler_UniversalCameraParams::TriggerModeEnums TriggerModeEnums;

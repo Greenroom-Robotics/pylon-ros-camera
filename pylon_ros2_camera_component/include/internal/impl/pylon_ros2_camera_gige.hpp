@@ -66,6 +66,7 @@ struct GigECameraTrait
     typedef Basler_UniversalCameraParams::LineModeEnums LineModeEnums;
     typedef Basler_UniversalCameraParams::LineSourceEnums LineSourceEnums;
     typedef Basler_UniversalCameraParams::AcquisitionStatusSelectorEnums AcquisitionStatusSelectorEnums;
+    typedef Basler_UniversalCameraParams::AcquisitionModeEnums AcquisitionModeEnums;
     typedef Basler_UniversalCameraParams::SensorReadoutModeEnums SensorReadoutModeEnums;
     typedef Basler_UniversalCameraParams::TriggerSelectorEnums TriggerSelectorEnums;
     typedef Basler_UniversalCameraParams::TriggerModeEnums TriggerModeEnums;

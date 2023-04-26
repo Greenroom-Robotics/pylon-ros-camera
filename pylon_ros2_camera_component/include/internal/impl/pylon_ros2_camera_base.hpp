@@ -1426,8 +1426,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setBlackLevel(const int& value)
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the image black level. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the image black level. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
 
     }
@@ -1479,8 +1479,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setPGIMode(const bool& on)
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the PGI mode. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the PGI mode. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -1545,8 +1545,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setDemosaicingMode(const int& mod
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the demosaicing mode. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the demosaicing mode. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -1625,8 +1625,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setNoiseReduction(const float& va
 
         else 
             {
-                RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the noise reduction value. The connected Camera not supporting this feature");
-                return "The connected Camera not supporting this feature";
+                RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the noise reduction value. The connected camera does not support this feature");
+                return "The connected camera does not support this feature";
             } 
     }
     catch ( const GenICam::GenericException &e )
@@ -1675,8 +1675,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setSharpnessEnhancement(const flo
                 }
                 else 
                 {
-                    RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sharpness enhancement value. The connected Camera not supporting this feature");
-                    return "The connected Camera not supporting this feature";
+                    RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sharpness enhancement value. The connected camera does not support this feature");
+                    return "The connected camera does not support this feature";
                 }
             }
             else
@@ -1696,8 +1696,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setSharpnessEnhancement(const flo
             }
         else 
             {
-                RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sharpness enhancement value, The connected Camera not supporting this feature");
-                return "The connected Camera not supporting this feature";
+                RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sharpness enhancement value, The connected camera does not support this feature");
+                return "The connected camera does not support this feature";
             } 
     }
     catch ( const GenICam::GenericException &e )
@@ -1753,8 +1753,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setSensorReadoutMode(const int& m
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sensor readout mode. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the sensor readout mode. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
 
     }
@@ -1824,14 +1824,14 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setTriggerSelector(const int& mod
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the Acquisition frame count. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger selector. The connected Camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
 
     }
     catch ( const GenICam::GenericException &e )
     {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while trying to change the Acquisition frame count occurred:" << e.GetDescription());
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while trying to change the trigger selector occurred:" << e.GetDescription());
         return e.GetDescription();
     }
     return "done";
@@ -1886,8 +1886,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setTriggerMode(const bool& value)
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger mode. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger mode. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
 
     }
@@ -1932,6 +1932,125 @@ int PylonROS2CameraImpl<CameraTraitT>::getTriggerMode()
 }
 
 template <typename CameraTraitT>
+std::string PylonROS2CameraImpl<CameraTraitT>::setAcquisitionMode(const int& mode)
+{
+    try
+    {
+        if ( GenApi::IsAvailable(cam_->AcquisitionMode) )
+        {
+            if (mode == 0)
+            {
+                cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_SingleFrame);
+                RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Single Frame");
+                return "done";
+            }
+            else if (mode == 1)
+            {
+                cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_Continuous);
+                RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Continuous");
+                return "done";
+            }
+            else
+            {
+                return "Error: unknown value";
+            }
+        }
+        else
+        {
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the acquisition mode. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
+        }
+
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while trying to change the acquisition mode occurred:" << e.GetDescription());
+        return e.GetDescription();
+    }
+    return "done";
+}
+
+template <typename CameraTraitT>
+int PylonROS2CameraImpl<CameraTraitT>::getAcquisitionMode()
+{
+    try
+    {
+        if ( GenApi::IsAvailable(cam_->AcquisitionMode) )
+        {
+            if (cam_->AcquisitionMode.GetValue() == AcquisitionModeEnums::AcquisitionMode_SingleFrame)
+            {
+                return 0;
+            }
+            else if (cam_->AcquisitionMode.GetValue() == AcquisitionModeEnums::AcquisitionMode_Continuous)
+            {
+                return 1;
+            }
+            else
+            {
+                return -3; // Unknown
+            }
+        }
+        else
+        {
+             return -1; // Not available
+        }
+
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        return -2; // Eror
+    }
+}
+
+template <typename CameraTraitT>
+std::string PylonROS2CameraImpl<CameraTraitT>::executeAcquisitionStart()
+{
+    try
+    {   if ( GenApi::IsAvailable(cam_->AcquisitionStart) )
+        {
+            cam_->AcquisitionStart.Execute();
+            return "done";
+        }
+        else
+        {
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to execute AcquisitionStart. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
+        }
+
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception occured while executing AcquisitionStart:" << e.GetDescription());
+        return e.GetDescription();
+    }
+    return "done";
+}
+
+template <typename CameraTraitT>
+std::string PylonROS2CameraImpl<CameraTraitT>::executeAcquisitionStop()
+{
+    try
+    {   if ( GenApi::IsAvailable(cam_->AcquisitionStop) )
+        {
+            cam_->AcquisitionStop.Execute();
+            return "done";
+        }
+        else 
+        {
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to execute AcquisitionStop. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
+        }
+
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception occured while executing AcquisitionStop:" << e.GetDescription());
+        return e.GetDescription();
+    }
+    return "done";
+}
+
+template <typename CameraTraitT>
 std::string PylonROS2CameraImpl<CameraTraitT>::executeSoftwareTrigger()
 {
     try
@@ -1942,14 +2061,14 @@ std::string PylonROS2CameraImpl<CameraTraitT>::executeSoftwareTrigger()
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger mode. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to execute the software trigger. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
 
     }
     catch ( const GenICam::GenericException &e )
     {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while setting the trigger mode occurred:" << e.GetDescription());
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception occured while executing the software trigger:" << e.GetDescription());
         return e.GetDescription();
     }
     return "done";
@@ -2058,8 +2177,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setTriggerActivation(const int& v
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger activation type. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger activation type. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2111,8 +2230,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setTriggerDelay(const float& dela
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger delay. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the trigger delay. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2172,8 +2291,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setLineSelector(const int& value)
         }
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the line selector. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the line selector. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2291,7 +2410,7 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setLineDebouncerTime(const float&
                 return "Error: can't set the line debouncer time, the selected line mode should be input";
             }
         } else {
-            return "The connected Camera not supporting this feature";
+            return "The connected camera does not support this feature";
         }
         
     }
@@ -2345,8 +2464,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setDeviceLinkThroughputLimitMode(
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the device link throughput limit mode. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the device link throughput limit mode. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
 
     }
@@ -2409,8 +2528,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setDeviceLinkThroughputLimit(cons
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the device link throughput limit. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the device link throughput limit. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2447,8 +2566,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setBalanceWhiteAuto(const int& mo
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the balance white auto. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the balance white auto. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2541,8 +2660,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setLightSourcePreset(const int& m
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the light source preset. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the light source preset. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2810,8 +2929,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setUserSetDefaultSelector(const i
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to select the default user set. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to select the default user set. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2885,8 +3004,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::triggerDeviceReset()
         }
         else 
         {
-             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to reset the camera. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to reset the camera. The connected camera does not support this feature");
+             return "The connected camera does not support this feature";
         }
     }
     catch ( const GenICam::GenericException &e )
@@ -2978,8 +3097,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setWhiteBalance(const double& red
         } 
         else 
         {
-            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the white balance. The connected Camera not supporting this feature");
-            return "The connected Camera not supporting this feature";
+            RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the white balance. The connected camera does not support this feature");
+            return "The connected camera does not support this feature";
         }
         
     }
@@ -3030,8 +3149,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setMaxNumBuffer(const int& size) 
                 return e.GetDescription();
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the maximum number buffers. The connected Camera not supporting this feature");
-        return "The connected Camera not supporting this feature";
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to set the maximum number buffers. The connected camera does not support this feature");
+        return "The connected camera does not support this feature";
     }
 
 }
@@ -3046,7 +3165,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getMaxNumBuffer() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the maximum number buffers. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the maximum number buffers. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3062,7 +3181,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticTotalBufferCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Total Buffer Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Total Buffer Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3078,7 +3197,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticFailedBufferCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Failed Buffer Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Failed Buffer Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3094,7 +3213,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticBufferUnderrunCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Buffer Underrun Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Buffer Underrun Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3110,7 +3229,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticFailedPacketCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Field Packet Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Field Packet Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3126,7 +3245,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticResendRequestCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Resend Request Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Resend Request Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3142,7 +3261,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticMissedFrameCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Missed Frame Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Missed Frame Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3158,7 +3277,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getStatisticResynchronizationCount() {
                 return -2;  // Error
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Resynchronization Count. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to get the Statistic Resynchronization Count. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3177,8 +3296,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setChunkModeActive(const bool& en
                 return e.GetDescription();
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Mode Active. The connected Camera not supporting this feature");
-        return "The connected Camera not supporting this feature";      // No Supported 
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Mode Active. The connected camera does not support this feature");
+        return "The connected camera does not support this feature";      // No Supported 
     }
 
 }
@@ -3197,7 +3316,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkModeActive() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Mode Active. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Mode Active. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3345,8 +3464,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setChunkSelector(const int& value
                 return e.GetDescription();
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Selector. The connected Camera not supporting this feature");
-        return "The connected Camera not supporting this feature";      // No Supported 
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Selector. The connected camera does not support this feature");
+        return "The connected camera does not support this feature";      // No Supported 
     }
 
 }
@@ -3464,7 +3583,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkSelector() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Selector. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Selector. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 
@@ -3481,8 +3600,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setChunkEnable(const bool& enable
                 return e.GetDescription();
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Enable. The connected Camera not supporting this feature");
-        return "The connected Camera not supporting this feature";      // No Supported 
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Enable. The connected camera does not support this feature");
+        return "The connected camera does not support this feature";      // No Supported 
     }
 
 }
@@ -3501,7 +3620,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkEnable() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Enable. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Enable. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 }
@@ -3516,7 +3635,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkTimestamp() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Timestamp. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Timestamp. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 }
@@ -3531,7 +3650,7 @@ float PylonROS2CameraImpl<CameraTraitT>::getChunkExposureTime() {
                 return -2.0;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Exposure Time. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Exposure Time. The connected camera does not support this feature");
         return -1.0;      // No Supported 
     }
 }
@@ -3547,8 +3666,8 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setChunkExposureTime(const float&
                 return e.GetDescription();
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Exposure Time. The connected Camera not supporting this feature");
-        return "The connected Camera not supporting this feature";      // No Supported 
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to setting the Chunk Exposure Time. The connected camera does not support this feature");
+        return "The connected camera does not support this feature";      // No Supported 
     }
 }
 
@@ -3562,7 +3681,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkLineStatusAll() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Line Status All. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Line Status All. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 }
@@ -3577,7 +3696,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkFramecounter() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Frame Counter. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Frame Counter. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 }
@@ -3592,7 +3711,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getChunkCounterValue() {
                 return -2;
         }
     } else {
-        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Counter Value. The connected Camera not supporting this feature");
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to getting the Chunk Counter Value. The connected camera does not support this feature");
         return -1;      // No Supported 
     }
 }
