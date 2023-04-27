@@ -279,7 +279,10 @@ void PylonROS2CameraNode::initServices()
   
   srv_name = srv_prefix + "set_acquisition_frame_count";
   this->set_acquisition_frame_count_srv_ = this->create_service<SetIntegerSrv>(srv_name, std::bind(&PylonROS2CameraNode::setAcquisitionFrameCountCallback, this, _1, _2));
-  
+
+  srv_name = srv_prefix + "set_acquisition_mode";
+  this->set_acquisition_mode_srv_ = this->create_service<SetIntegerSrv>(srv_name, std::bind(&PylonROS2CameraNode::setAcquisitionModeCallback, this, _1, _2));
+
   srv_name = srv_prefix + "set_trigger_selector";
   this->set_trigger_selector_srv_ = this->create_service<SetIntegerSrv>(srv_name, std::bind(&PylonROS2CameraNode::setTriggerSelectorCallback, this, _1, _2));
   
@@ -426,7 +429,13 @@ void PylonROS2CameraNode::initServices()
 
   srv_name = srv_prefix + "enable_sync_free_run_timer";
   this->enable_sync_free_run_timer_srv_ = this->create_service<SetBoolSrv>(srv_name, std::bind(&PylonROS2CameraNode::enableSyncFreeRunTimerCallback, this, _1, _2));
-  
+
+  srv_name = srv_prefix + "acquisition_start";
+  this->acquisition_start_srv_ = this->create_service<TriggerSrv>(srv_name, std::bind(&PylonROS2CameraNode::acquisitionStartCallback, this, _1, _2));
+
+  srv_name = srv_prefix + "acquisition_stop";
+  this->acquisition_stop_srv_ = this->create_service<TriggerSrv>(srv_name, std::bind(&PylonROS2CameraNode::acquisitionStopCallback, this, _1, _2));
+
   srv_name = srv_prefix + "execute_software_trigger";
   this->execute_software_trigger_srv_ = this->create_service<TriggerSrv>(srv_name, std::bind(&PylonROS2CameraNode::executeSoftwareTriggerCallback, this, _1, _2));
   
@@ -1524,6 +1533,42 @@ std::string PylonROS2CameraNode::setTriggerMode(const bool& value)
   return this->pylon_camera_->setTriggerMode(value);
 }
 
+std::string PylonROS2CameraNode::setAcquisitionMode(const int& value)
+{   
+  std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
+  if (!this->pylon_camera_->isReady())
+  {
+    RCLCPP_WARN(LOGGER, "Error in setAcquisitionMode(): pylon_camera_ is not ready!");
+    return "pylon camera is not ready!";
+  }
+
+  return this->pylon_camera_->setAcquisitionMode(value);
+}
+
+std::string PylonROS2CameraNode::acquisitionStart()
+{   
+  std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
+  if (!this->pylon_camera_->isReady())
+  {
+    RCLCPP_WARN(LOGGER, "Error in acquisitionStart(): pylon_camera_ is not ready!");
+    return "pylon camera is not ready!";
+  }
+
+  return this->pylon_camera_->acquisitionStart();
+}
+
+std::string PylonROS2CameraNode::acquisitionStop()
+{   
+  std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
+  if (!this->pylon_camera_->isReady())
+  {
+    RCLCPP_WARN(LOGGER, "Error in acquisitionStop(): pylon_camera_ is not ready!");
+    return "pylon camera is not ready!";
+  }
+
+  return this->pylon_camera_->acquisitionStop();
+}
+
 std::string PylonROS2CameraNode::executeSoftwareTrigger()
 {   
   std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
@@ -2471,6 +2516,24 @@ void PylonROS2CameraNode::setAcquisitionFrameCountCallback(const std::shared_ptr
   }
 }
 
+void PylonROS2CameraNode::setAcquisitionModeCallback(const std::shared_ptr<SetIntegerSrv::Request> request,
+                                                     std::shared_ptr<SetIntegerSrv::Response> response)
+{
+  response->message = this->setAcquisitionMode(request->value);
+  if ((response->message.find("done") != std::string::npos) != 0)
+  {
+    response->success = true;
+  }
+  else 
+  {
+    response->success = false;
+    if ((response->message.find("EnumEntry") != std::string::npos) != 0)
+    {
+      response->message = "The passed acquisition mode is not supported by the connected camera";
+    }
+  }
+}
+
 void PylonROS2CameraNode::setTriggerSelectorCallback(const std::shared_ptr<SetIntegerSrv::Request> request,
                                                      std::shared_ptr<SetIntegerSrv::Response> response)
 {
@@ -3318,6 +3381,44 @@ void PylonROS2CameraNode::enableSyncFreeRunTimerCallback(const std::shared_ptr<S
   else
   {
     response->success = false;
+  }
+}
+
+void PylonROS2CameraNode::acquisitionStartCallback(const std::shared_ptr<TriggerSrv::Request> request,
+                                                         std::shared_ptr<TriggerSrv::Response> response)
+{
+  (void)request;
+  response->message = this->acquisitionStart();
+  if ((response->message.find("done") != std::string::npos) != 0)
+  {
+      response->success = true;
+  }
+  else 
+  {
+    response->success = false;
+    if (response->message == "Node is not writable.")
+    {
+      response->message = "Using this feature requires stopping image grabbing";
+    }
+  }
+}
+
+void PylonROS2CameraNode::acquisitionStopCallback(const std::shared_ptr<TriggerSrv::Request> request,
+                                                         std::shared_ptr<TriggerSrv::Response> response)
+{
+  (void)request;
+  response->message = this->acquisitionStop();
+  if ((response->message.find("done") != std::string::npos) != 0)
+  {
+      response->success = true;
+  }
+  else 
+  {
+    response->success = false;
+    if (response->message == "Node is not writable.")
+    {
+      response->message = "Using this feature requires stopping image grabbing";
+    }
   }
 }
 

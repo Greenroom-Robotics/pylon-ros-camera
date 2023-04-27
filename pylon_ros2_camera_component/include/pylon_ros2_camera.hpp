@@ -597,6 +597,25 @@ public:
     virtual std::string setTriggerSelector(const int& mode) = 0 ;
 
      /**
+     * set the acquisition mode
+     * @param mode : 0 = Single Frame, 1 = Continuous
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string setAcquisitionMode(const int& mode) = 0 ;
+
+    /**
+     * start acquisition
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string acquisitionStart() = 0;
+
+    /**
+     * stop acquisition
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string acquisitionStop() = 0;
+
+     /**
      * get current trigger selector status   
      * @return -3 = Unknown, -2 = Error, -1 = Not available, 0 = FrameStart, 1 = FrameBurstStart(USB)/AcquisitionStart(GigE)
      */

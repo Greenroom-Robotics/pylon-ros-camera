@@ -2003,7 +2003,7 @@ int PylonROS2CameraImpl<CameraTraitT>::getAcquisitionMode()
 }
 
 template <typename CameraTraitT>
-std::string PylonROS2CameraImpl<CameraTraitT>::executeAcquisitionStart()
+std::string PylonROS2CameraImpl<CameraTraitT>::acquisitionStart()
 {
     try
     {   if ( GenApi::IsAvailable(cam_->AcquisitionStart) )
@@ -2027,7 +2027,7 @@ std::string PylonROS2CameraImpl<CameraTraitT>::executeAcquisitionStart()
 }
 
 template <typename CameraTraitT>
-std::string PylonROS2CameraImpl<CameraTraitT>::executeAcquisitionStop()
+std::string PylonROS2CameraImpl<CameraTraitT>::acquisitionStop()
 {
     try
     {   if ( GenApi::IsAvailable(cam_->AcquisitionStop) )

@@ -198,6 +198,14 @@ public:
 
     virtual int getTriggerMode();
 
+    virtual std::string setAcquisitionMode(const int& mode);
+
+    virtual int getAcquisitionMode();
+
+    virtual std::string acquisitionStart();
+
+    virtual std::string acquisitionStop();
+
     virtual std::string executeSoftwareTrigger();
 
     virtual std::string setTriggerSource(const int& source);
@@ -359,6 +367,7 @@ protected:
     typedef typename CameraTraitT::UserOutputSelectorEnums UserOutputSelectorEnums;
     typedef typename CameraTraitT::SensorReadoutModeEnums SensorReadoutModeEnums;
     typedef typename CameraTraitT::AcquisitionStatusSelectorEnums AcquisitionStatusSelectorEnums;
+    typedef typename CameraTraitT::AcquisitionModeEnums AcquisitionModeEnums;
     typedef typename CameraTraitT::TriggerSelectorEnums TriggerSelectorEnums;
     typedef typename CameraTraitT::TriggerModeEnums TriggerModeEnums;
     typedef typename CameraTraitT::TriggerSourceEnums TriggerSourceEnums;
