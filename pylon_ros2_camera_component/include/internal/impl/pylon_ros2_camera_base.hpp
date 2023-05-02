@@ -418,7 +418,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image)
     Pylon::CGrabResultPtr ptr_grab_result;
     if ( !grab(ptr_grab_result) )
     {   
-        RCLCPP_ERROR(LOGGER_BASE, "Error: Grab was not successful");
+        RCLCPP_WARN(LOGGER_BASE, "Grab was not successful");
         return false;
     }
     const uint8_t *pImageBuffer = reinterpret_cast<uint8_t*>(ptr_grab_result->GetBuffer());
@@ -460,7 +460,7 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image)
     Pylon::CGrabResultPtr ptr_grab_result;
     if ( !grab(ptr_grab_result) )
     {   
-        RCLCPP_ERROR(LOGGER_BASE, "Error: Grab was not successful");
+        RCLCPP_WARN(LOGGER_BASE, "Grab was not successful");
         return false;
     }
 
@@ -513,6 +513,10 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CGrabResultPtr& grab_result)
         }   
     }
         cam_->RetrieveResult(grab_timeout_, grab_result, Pylon::TimeoutHandling_ThrowException); 
+    }
+    catch ( const Pylon::TimeoutException &e ) {
+        RCLCPP_WARN(LOGGER_BASE, "Timeout occurred during RetrieveResult()");
+        return false;
     }
     catch ( const GenICam::GenericException &e )
     {   
