@@ -601,7 +601,14 @@ public:
      * @param mode : 0 = Single Frame, 1 = Continuous
      * @return error message if an error occurred or done message otherwise.
      */
-    virtual std::string setAcquisitionMode(const int& mode) = 0 ;
+    virtual std::string setAcquisitionMode(const pylon_ros2_camera::ACQUISITION_MODE& mode) = 0 ;
+
+     /**
+     * set the acquisition mode
+     * @param mode : 0 = Single Frame, 1 = Continuous
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual bool setAcquisitionMode_(const pylon_ros2_camera::ACQUISITION_MODE& mode) = 0 ;
 
     /**
      * start acquisition

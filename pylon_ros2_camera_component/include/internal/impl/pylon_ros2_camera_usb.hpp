@@ -403,22 +403,21 @@ std::string PylonROS2USBCamera::setAcquisitionFrameCount(const int& frameCount)
 {
     try
     {
-        if ( GenApi::IsAvailable(cam_->AcquisitionBurstFrameCount) )
+        // if ( GenApi::IsAvailable(cam_->AcquisitionBurstFrameCount) )
+        // {  
+        //     cam_->AcquisitionBurstFrameCount.SetValue(frameCount);   
+        //     return "done";
+        // }
+
+        if ( GenApi::IsAvailable(cam_->AcquisitionFrameRate) && GenApi::IsAvailable(cam_->AcquisitionFrameRateEnable))
         {  
-            cam_->AcquisitionBurstFrameCount.SetValue(frameCount);   
+            cam_->AcquisitionFrameRateEnable.SetValue(true);
+            cam_->AcquisitionFrameRate.SetValue(static_cast<float>(frameCount));   
             return "done";
-        }
-        else if ( GenApi::IsAvailable(cam_->AcquisitionFrameRate) )
-        {
-            cam_->AcquisitionFrameRate.SetValue(frameCount);   
-            return "done";
-        }
-        else 
-        {
-             RCLCPP_ERROR_STREAM(LOGGER_USB, "Error while trying to change the Acquisition frame count. The connected Camera not supporting this feature");
-             return "The connected Camera not supporting this feature";
         }
 
+        RCLCPP_ERROR_STREAM(LOGGER_USB, "Error while trying to change the Acquisition frame count. The connected Camera not supporting this feature");
+        return "The connected Camera not supporting this feature";
     }
     catch ( const GenICam::GenericException &e )
     {

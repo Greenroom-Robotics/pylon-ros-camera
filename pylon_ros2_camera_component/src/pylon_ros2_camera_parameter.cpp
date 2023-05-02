@@ -63,6 +63,7 @@ PylonROS2CameraParameter::PylonROS2CameraParameter() :
     startup_user_set_(""),
     inter_pkg_delay_(1000),
     shutter_mode_(SM_DEFAULT),
+    acquisition_mode_(AM_DEFAULT),
     auto_flash_(false), 
     grab_timeout_(500),
     trigger_timeout_(5000),
@@ -74,6 +75,7 @@ PylonROS2CameraParameter::PylonROS2CameraParameter() :
     camera_frame_("pylon_camera"),
     device_user_id_(""),
     frame_rate_(5.0),
+    acquisition_frame_rate_(0.0),
     camera_info_url_(""),
     image_encoding_("")
 {
@@ -113,7 +115,14 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
         nh.declare_parameter<double>("frame_rate", 5.0);
     }
     nh.get_parameter("frame_rate", this->frame_rate_);
-    
+
+    RCLCPP_DEBUG(LOGGER, "---> acquisition_frame_rate");
+    if (!nh.has_parameter("acquisition_frame_rate"))
+    {
+        nh.declare_parameter<double>("acquisition_frame_rate", 0.0);
+    }
+    nh.get_parameter("acquisition_frame_rate", this->acquisition_frame_rate_);
+
     RCLCPP_DEBUG(LOGGER, "---> camera_info_url");
     if (!nh.has_parameter("camera_info_url"))
     {
@@ -319,6 +328,26 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
         this->shutter_mode_ = SM_DEFAULT;
     }
 
+    RCLCPP_DEBUG(LOGGER, "---> acquisition_mode");
+    if (!nh.has_parameter("acquisition_mode"))
+    {
+        nh.declare_parameter<std::string>("acquisition_mode", "");
+    }
+    std::string acquisition_param_string;
+    nh.get_parameter("acquisition_mode", acquisition_param_string);
+    if (acquisition_param_string == "single")
+    {
+        this->acquisition_mode_ = AM_SINGLE;
+    }
+    else if (acquisition_param_string == "continuous")
+    {
+        this->acquisition_mode_ = AM_CONTINUOUS;
+    }
+    else
+    {
+        this->acquisition_mode_ = AM_DEFAULT;
+    }
+
     RCLCPP_DEBUG(LOGGER, "---> startup_user_set");
     if (!nh.has_parameter("startup_user_set"))
     {
@@ -432,6 +461,13 @@ void PylonROS2CameraParameter::validateParameterSet(rclcpp::Node& nh)
         this->setFrameRate(nh, 5.0);
     }
 
+    if (this->acquisition_frame_rate_ < 0 && this->acquisition_frame_rate_ != -1)
+    {
+        RCLCPP_WARN_STREAM(LOGGER, "The specified acquisition frame rate value - " << this->acquisition_frame_rate_ << " Hz - is not valid!"
+                                << "-> Will reset it to default value (0 Hz).");
+        this->setAcquisitionFrameRate(nh, 0.0);
+    }
+
     if (this->exposure_given_ && (this->exposure_ <= 0.0 || this->exposure_ > 1e7))
     {
         RCLCPP_WARN_STREAM(LOGGER, "The specified exposure value - " << this->exposure_ << " ms - is out of valid range!"
@@ -522,6 +558,23 @@ void PylonROS2CameraParameter::setFrameRate(rclcpp::Node& nh, const double& fram
     this->frame_rate_ = frame_rate;
     
     nh.set_parameter(rclcpp::Parameter("frame_rate", this->frame_rate_));
+}
+
+const double& PylonROS2CameraParameter::acquisitionFrameRate() const
+{
+    return this->acquisition_frame_rate_;
+}
+
+void PylonROS2CameraParameter::setAcquisitionFrameRate(rclcpp::Node& nh, const double& acquisition_frame_rate)
+{
+    if (!nh.has_parameter("acquisition_frame_rate"))
+    {
+        nh.declare_parameter<double>("acquisition_frame_rate", 0.0);
+    }
+
+    this->acquisition_frame_rate_ = acquisition_frame_rate;
+    
+    nh.set_parameter(rclcpp::Parameter("acquisition_frame_rate", this->acquisition_frame_rate_));
 }
 
 const std::string& PylonROS2CameraParameter::cameraInfoURL() const

@@ -36,6 +36,12 @@
     #  Calling the GrabImages-Action can result in a higher framerate
     frame_rate: 5.0
 
+    #  The desired acquisition frame rate.
+    # acquisition_frame_rate: 0.0
+
+    #  The desired acquisition mode.
+    # acquisition_mode: "single"
+
     #  Mode of camera's shutter.
     #  The supported modes are "rolling", "global" and "global_reset"
     #  Default value is "" (empty) means default_shutter_mode

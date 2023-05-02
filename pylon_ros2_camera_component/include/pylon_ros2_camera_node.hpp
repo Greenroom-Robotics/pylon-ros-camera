@@ -339,9 +339,9 @@ protected:
   /**
    * @brief Method to set the camera acquisition mode
    * @param mode acquisition mode.
-   * @return error message if an error occurred or done message otherwise.
+   * @return success boolean
    */
-  std::string setAcquisitionMode(const int& mode);
+  bool setAcquisitionMode(const int& mode);
 
   /**
    * @brief Method to set the trigger selector   

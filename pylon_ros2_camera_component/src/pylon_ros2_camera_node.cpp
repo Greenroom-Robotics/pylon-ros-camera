@@ -580,6 +580,16 @@ bool PylonROS2CameraNode::initAndRegister()
     return false;
   }
 
+  if (this->pylon_camera_parameter_set_.acquisitionFrameRate() != 0.0)
+  {
+    this->pylon_camera_->setAcquisitionFrameCount(this->pylon_camera_parameter_set_.acquisitionFrameRate());
+  }
+
+  if (this->pylon_camera_parameter_set_.acquisition_mode_ != pylon_ros2_camera::AM_DEFAULT)
+  {
+    this->pylon_camera_->setAcquisitionMode(this->pylon_camera_parameter_set_.acquisition_mode_);
+  }
+
   return true;
 }
 
@@ -732,7 +742,7 @@ bool PylonROS2CameraNode::startGrabbing()
             << reached_brightness);
 
     if (this->pylon_camera_parameter_set_.brightness_continuous_)
-    {   
+    {
       if ( this->pylon_camera_parameter_set_.exposure_auto_)
       {
         this->pylon_camera_->enableContinuousAutoExposure();
@@ -769,6 +779,12 @@ bool PylonROS2CameraNode::startGrabbing()
   {
     this->pylon_camera_parameter_set_.setFrameRate(*this, this->pylon_camera_->maxPossibleFramerate());
     RCLCPP_INFO(LOGGER, "Max possible framerate is %.2f Hz", this->pylon_camera_->maxPossibleFramerate());
+  }
+
+  if (this->pylon_camera_parameter_set_.acquisition_mode_ != pylon_ros2_camera::AM_DEFAULT)
+  {
+    // to prevent capture of images on bootup if we're using the acquisition mode
+    this->pylon_camera_->acquisitionStop();
   }
 
   return true;
@@ -1533,7 +1549,7 @@ std::string PylonROS2CameraNode::setTriggerMode(const bool& value)
   return this->pylon_camera_->setTriggerMode(value);
 }
 
-std::string PylonROS2CameraNode::setAcquisitionMode(const int& value)
+bool PylonROS2CameraNode::setAcquisitionMode(const int& value)
 {   
   std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
   if (!this->pylon_camera_->isReady())
@@ -1542,7 +1558,7 @@ std::string PylonROS2CameraNode::setAcquisitionMode(const int& value)
     return "pylon camera is not ready!";
   }
 
-  return this->pylon_camera_->setAcquisitionMode(value);
+  return this->pylon_camera_->setAcquisitionMode_(static_cast<pylon_ros2_camera::ACQUISITION_MODE>(value));
 }
 
 std::string PylonROS2CameraNode::acquisitionStart()
@@ -2519,18 +2535,14 @@ void PylonROS2CameraNode::setAcquisitionFrameCountCallback(const std::shared_ptr
 void PylonROS2CameraNode::setAcquisitionModeCallback(const std::shared_ptr<SetIntegerSrv::Request> request,
                                                      std::shared_ptr<SetIntegerSrv::Response> response)
 {
-  response->message = this->setAcquisitionMode(request->value);
-  if ((response->message.find("done") != std::string::npos) != 0)
+  bool success = this->setAcquisitionMode(request->value);
+  if (success)
   {
     response->success = true;
   }
   else 
   {
     response->success = false;
-    if ((response->message.find("EnumEntry") != std::string::npos) != 0)
-    {
-      response->message = "The passed acquisition mode is not supported by the connected camera";
-    }
   }
 }
 

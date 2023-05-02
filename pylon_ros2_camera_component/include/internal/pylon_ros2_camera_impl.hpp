@@ -198,7 +198,8 @@ public:
 
     virtual int getTriggerMode();
 
-    virtual std::string setAcquisitionMode(const int& mode);
+    virtual bool setAcquisitionMode_(const pylon_ros2_camera::ACQUISITION_MODE& mode);
+    virtual std::string setAcquisitionMode(const pylon_ros2_camera::ACQUISITION_MODE& mode);
 
     virtual int getAcquisitionMode();
 

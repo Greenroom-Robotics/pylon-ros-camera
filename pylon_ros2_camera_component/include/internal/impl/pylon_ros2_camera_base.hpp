@@ -354,6 +354,12 @@ bool PylonROS2CameraImpl<CameraTraitT>::startGrabbing(const PylonROS2CameraParam
             setShutterMode(parameters.shutter_mode_);
         }
 
+        // if ( GenApi::IsAvailable(cam_->AcquisitionMode) )
+        // {
+        //     setAcquisitionMode_(parameters.acquisition_mode_);
+        // }
+
+
         available_image_encodings_ = detectAvailableImageEncodings(true); // Basler format
 
         // Check if the image can be encoded with the parameter defined value
@@ -1932,19 +1938,19 @@ int PylonROS2CameraImpl<CameraTraitT>::getTriggerMode()
 }
 
 template <typename CameraTraitT>
-std::string PylonROS2CameraImpl<CameraTraitT>::setAcquisitionMode(const int& mode)
+std::string PylonROS2CameraImpl<CameraTraitT>::setAcquisitionMode(const pylon_ros2_camera::ACQUISITION_MODE &mode)
 {
     try
     {
         if ( GenApi::IsAvailable(cam_->AcquisitionMode) )
         {
-            if (mode == 0)
+            if (mode == pylon_ros2_camera::AM_SINGLE)
             {
                 cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_SingleFrame);
                 RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Single Frame");
                 return "done";
             }
-            else if (mode == 1)
+            else if (mode == pylon_ros2_camera::AM_CONTINUOUS)
             {
                 cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_Continuous);
                 RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Continuous");
@@ -1967,7 +1973,44 @@ std::string PylonROS2CameraImpl<CameraTraitT>::setAcquisitionMode(const int& mod
         RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while trying to change the acquisition mode occurred:" << e.GetDescription());
         return e.GetDescription();
     }
-    return "done";
+}
+
+template <typename CameraTraitT>
+bool PylonROS2CameraImpl<CameraTraitT>::setAcquisitionMode_(const pylon_ros2_camera::ACQUISITION_MODE &mode)
+{
+    try
+    {
+        if ( GenApi::IsAvailable(cam_->AcquisitionMode) )
+        {
+            if (mode == pylon_ros2_camera::AM_SINGLE)
+            {
+                cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_SingleFrame);
+                RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Single Frame");
+                return true;
+            }
+            else if (mode == pylon_ros2_camera::AM_CONTINUOUS)
+            {
+                cam_->AcquisitionMode.SetValue(AcquisitionModeEnums::AcquisitionMode_Continuous);
+                RCLCPP_INFO_STREAM(LOGGER_BASE, "Acquisition Mode: Continuous");
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+             RCLCPP_ERROR_STREAM(LOGGER_BASE, "Error while trying to change the acquisition mode. The connected camera does not support this feature");
+             return false;
+        }
+
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        RCLCPP_ERROR_STREAM(LOGGER_BASE, "An exception while trying to change the acquisition mode occurred:" << e.GetDescription());
+        return false;
+    }
 }
 
 template <typename CameraTraitT>
