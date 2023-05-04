@@ -1564,6 +1564,9 @@ protected:
   rclcpp_action::Server<GrabImagesAction>::SharedPtr grab_imgs_raw_as_;
   rclcpp_action::Server<GrabImagesAction>::SharedPtr grab_imgs_rect_as_;
 
+  rclcpp::CallbackGroup::SharedPtr callback_group_services;
+  rclcpp::CallbackGroup::SharedPtr callback_group_timer;
+
   // spinning thread
   rclcpp::TimerBase::SharedPtr timer_;
   // mutex
