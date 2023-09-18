@@ -31,6 +31,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -301,6 +302,10 @@ public:
       Acquisition mode
     */
     ACQUISITION_MODE acquisition_mode_;
+
+    std::optional<int> line_selector_;
+    std::optional<bool> trigger_mode_;
+    std::optional<int> trigger_source_;
 
     /**
      * Flag that indicates if the camera has a flash connected which should be on on exposure

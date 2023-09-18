@@ -596,6 +596,21 @@ bool PylonROS2CameraNode::initAndRegister()
     this->pylon_camera_->setAcquisitionMode(this->pylon_camera_parameter_set_.acquisition_mode_);
   }
 
+  if (this->pylon_camera_parameter_set_.trigger_mode_)
+  {
+    this->pylon_camera_->setTriggerMode(*this->pylon_camera_parameter_set_.trigger_mode_);
+  }
+
+  if (this->pylon_camera_parameter_set_.line_selector_)
+  {
+    this->pylon_camera_->setLineSelector(*this->pylon_camera_parameter_set_.line_selector_);
+  }
+
+  if (this->pylon_camera_parameter_set_.trigger_source_)
+  {
+    this->pylon_camera_->setTriggerSource(*this->pylon_camera_parameter_set_.trigger_source_);
+  }
+
   return true;
 }
 

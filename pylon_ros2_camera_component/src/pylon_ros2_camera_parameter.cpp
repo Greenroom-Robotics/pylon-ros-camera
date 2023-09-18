@@ -348,6 +348,33 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
         this->acquisition_mode_ = AM_DEFAULT;
     }
 
+    RCLCPP_DEBUG(LOGGER, "---> line selector");
+    if (nh.has_parameter("line_selector"))
+    {
+        int val;
+        nh.get_parameter("line_selector", val);
+        this->line_selector_.emplace(val);
+        RCLCPP_DEBUG_STREAM(LOGGER, "line selector has value " << *this->line_selector_);
+    }
+
+    RCLCPP_DEBUG(LOGGER, "---> trigger mode");
+    if (nh.has_parameter("trigger_mode"))
+    {
+        bool val;
+        nh.get_parameter("trigger_mode", val);
+        this->trigger_mode_.emplace(val);
+        RCLCPP_DEBUG_STREAM(LOGGER, "trigger mode has value " << *this->trigger_mode_);
+    }
+
+    RCLCPP_DEBUG(LOGGER, "---> trigger source");
+    if (nh.has_parameter("trigger_source"))
+    {
+        int val;
+        nh.get_parameter("trigger_source", val);
+        this->trigger_source_.emplace(val);
+        RCLCPP_DEBUG_STREAM(LOGGER, "trigger source has value " << *this->trigger_source_);
+    }
+
     RCLCPP_DEBUG(LOGGER, "---> startup_user_set");
     if (!nh.has_parameter("startup_user_set"))
     {
