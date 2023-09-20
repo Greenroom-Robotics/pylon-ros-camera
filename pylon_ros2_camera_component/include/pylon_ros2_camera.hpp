@@ -114,6 +114,8 @@ public:
      */
     virtual bool grab(std::vector<uint8_t>& image) = 0;
 
+    virtual bool saveDNG(std::string path) = 0;
+
     /**
      * Grab a camera frame and copy the result into image
      * @param image pointer to the image buffer.

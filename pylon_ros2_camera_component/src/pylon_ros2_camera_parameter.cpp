@@ -77,7 +77,9 @@ PylonROS2CameraParameter::PylonROS2CameraParameter() :
     frame_rate_(5.0),
     acquisition_frame_rate_(0.0),
     camera_info_url_(""),
-    image_encoding_("")
+    image_encoding_(""),
+    save_dng_(false),
+    filename_format_("")
 {
     // information logging severity mode
     //rcutils_ret_t __attribute__((unused)) res = rcutils_logging_set_logger_level(LOGGER.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -454,6 +456,14 @@ void PylonROS2CameraParameter::readFromRosParameterServer(rclcpp::Node& nh)
     nh.get_parameter("auto_flash_line_3", this->auto_flash_line_3_);
 
     RCLCPP_WARN(LOGGER, "Autoflash: %i, line2: %i , line3: %i ", this->auto_flash_, this->auto_flash_line_2_, this->auto_flash_line_3_);
+
+    if (!nh.has_parameter("save_dng"))
+        nh.declare_parameter<bool>("save_dng", false);
+    nh.get_parameter("save_dng", this->save_dng_);
+
+    if (!nh.has_parameter("filename_format"))
+        nh.declare_parameter<std::string>("filename_format", "image%04i.dng");
+    nh.get_parameter("filename_format", this->filename_format_);
 
     this->validateParameterSet(nh);
 }

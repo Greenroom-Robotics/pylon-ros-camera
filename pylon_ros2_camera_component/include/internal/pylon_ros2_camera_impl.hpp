@@ -408,6 +408,8 @@ protected:
 
     virtual bool grab(Pylon::CGrabResultPtr& grab_result);
 
+    virtual bool saveDNG(std::string path);
+
     virtual bool setupSequencer(const std::vector<float>& exposure_times,
                                 std::vector<float>& exposure_times_set);
 };

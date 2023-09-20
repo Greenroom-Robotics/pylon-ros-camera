@@ -125,6 +125,7 @@ bool PylonROS2CameraNode::init()
   // in case they are provided
   this->pylon_camera_parameter_set_.readFromRosParameterServer(*this);
   
+  filename_format_.parse(this->pylon_camera_parameter_set_.filename_format_);
   // creating the target PylonCamera-Object with the specified
   // device_user_id, registering the Software-Trigger-Mode, starting the
   // communication with the device and enabling the desired startup-settings
@@ -142,6 +143,8 @@ bool PylonROS2CameraNode::init()
     rclcpp::shutdown();
     return false;
   }
+
+  this->postInitConfiguration();
 
   return true;
 }
@@ -586,15 +589,19 @@ bool PylonROS2CameraNode::initAndRegister()
     return false;
   }
 
+  if (this->pylon_camera_parameter_set_.acquisition_mode_ != pylon_ros2_camera::AM_DEFAULT)
+  {
+    this->pylon_camera_->setAcquisitionMode(this->pylon_camera_parameter_set_.acquisition_mode_);
+  }
+  return true;
+}
+
+bool PylonROS2CameraNode::postInitConfiguration() {
   if (this->pylon_camera_parameter_set_.acquisitionFrameRate() != 0.0)
   {
     this->pylon_camera_->setAcquisitionFrameCount(this->pylon_camera_parameter_set_.acquisitionFrameRate());
   }
 
-  if (this->pylon_camera_parameter_set_.acquisition_mode_ != pylon_ros2_camera::AM_DEFAULT)
-  {
-    this->pylon_camera_->setAcquisitionMode(this->pylon_camera_parameter_set_.acquisition_mode_);
-  }
 
   if (this->pylon_camera_parameter_set_.trigger_mode_)
   {
@@ -613,6 +620,7 @@ bool PylonROS2CameraNode::initAndRegister()
 
   return true;
 }
+
 
 bool PylonROS2CameraNode::startGrabbing()
 {
@@ -811,6 +819,18 @@ bool PylonROS2CameraNode::startGrabbing()
   return true;
 }
 
+std::string PylonROS2CameraNode::getNextImageFilename(uint64_t ts)
+{
+  std::string filename;
+  try {
+    filename = (filename_format_ % ts).str();
+  } catch (...) {
+    filename_format_.clear();
+  }
+
+  return filename;
+}
+
 void PylonROS2CameraNode::spin()
 {
   if (this->camera_info_manager_->isCalibrated())
@@ -852,14 +872,11 @@ void PylonROS2CameraNode::spin()
     return;
   }
   
-  if (!this->isSleeping() && (this->img_raw_pub_.getNumSubscribers() || this->getNumSubscribersRectImagePub()))
+  if (!this->isSleeping() && (this->img_raw_pub_.getNumSubscribers() || this->getNumSubscribersRectImagePub() || this->pylon_camera_parameter_set_.save_dng_))
   {
-    if (this->img_raw_pub_.getNumSubscribers() || this->getNumSubscribersRectImagePub())
+    if (!this->grabImage())
     {
-      if (!this->grabImage())
-      {
-        return;
-      }
+      return;
     }
 
     if (this->img_raw_pub_.getNumSubscribers() > 0)
@@ -907,16 +924,25 @@ void PylonROS2CameraNode::spin()
 
 bool PylonROS2CameraNode::grabImage()
 {
-  using namespace std::chrono_literals;
-
   std::lock_guard<std::recursive_mutex> lock(this->grab_mutex_);
   // Store current time before the image is transmitted for a more accurate grab time estimation
   auto grab_time = rclcpp::Node::now();
-  if (!this->pylon_camera_->grab(img_raw_msg_.data))
+
+  if (this->pylon_camera_parameter_set_.save_dng_)
   {
-    return false;
+    std::string next_image_path = this->getNextImageFilename(grab_time.nanoseconds());
+    if (this->pylon_camera_->saveDNG(next_image_path)) {
+      RCLCPP_INFO(LOGGER, "Saved DNG file: %s", next_image_path.c_str());
+      image_counter_++;
+    }
+  } else {
+    if (!this->pylon_camera_->grab(img_raw_msg_.data))
+    {
+      return false;
+    }
+    img_raw_msg_.header.stamp = grab_time;
   }
-  img_raw_msg_.header.stamp = grab_time;
+
   return true;
 }
 

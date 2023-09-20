@@ -353,6 +353,10 @@ public:
     */
     int grab_strategy_;
 
+    bool save_dng_;
+
+    std::string filename_format_;
+
 
 protected:
     /**

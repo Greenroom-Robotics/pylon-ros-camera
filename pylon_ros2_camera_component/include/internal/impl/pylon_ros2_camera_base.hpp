@@ -451,7 +451,6 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(std::vector<uint8_t>& image)
 template <typename CameraTrait>
 bool PylonROS2CameraImpl<CameraTrait>::grab(uint8_t* image)
 {   
-
     // If camera is not grabbing, don't grab
     if (!cam_->IsGrabbing()){
         return false;
@@ -549,6 +548,28 @@ bool PylonROS2CameraImpl<CameraTrait>::grab(Pylon::CGrabResultPtr& grab_result)
                 << grab_result->GetErrorDescription());
         return false;
     }
+    return true;
+}
+
+template <typename CameraTrait>
+bool PylonROS2CameraImpl<CameraTrait>::saveDNG(std::string path)
+{
+    // If camera is not grabbing, don't grab
+    if (!cam_->IsGrabbing()){
+        return false;
+    }
+
+    Pylon::CGrabResultPtr ptr_grab_result;
+    if ( !grab(ptr_grab_result) )
+    {   
+        RCLCPP_WARN(LOGGER_BASE, "Grab was not successful");
+        return false;
+    }
+
+    // Pylon::CImagePersistence::Save(
+    //     Pylon::ImageFileFormat_Dng,
+    //     path.c_str(),
+    //     ptr_grab_result);
     return true;
 }
 

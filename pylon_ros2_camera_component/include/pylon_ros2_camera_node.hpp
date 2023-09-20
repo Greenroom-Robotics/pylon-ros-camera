@@ -74,6 +74,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 
 #include <cv_bridge/cv_bridge.h>
+#include <boost/format.hpp>
 
 #include <image_transport/image_transport.hpp>
 #include <image_transport/camera_publisher.hpp>
@@ -167,6 +168,8 @@ protected:
    * @return false if an error occurred
    */
   bool initAndRegister();
+
+  bool postInitConfiguration();
 
   /**
    * @brief Start the camera and initialize the messages
@@ -1433,6 +1436,8 @@ protected:
    */
   bool isSleeping();
 
+  std::string getNextImageFilename(uint64_t ts);
+
 protected:
 
   // camera
@@ -1577,6 +1582,9 @@ protected:
   std::array<float, 256> brightness_exp_lut_;
 
   bool is_sleeping_;
+
+  boost::format filename_format_;
+  int image_counter_ = 0;
 
   // diagnostics
   diagnostic_updater::Updater diagnostics_updater_;
