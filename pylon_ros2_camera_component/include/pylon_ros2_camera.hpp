@@ -114,6 +114,8 @@ public:
      */
     virtual bool grab(std::vector<uint8_t>& image) = 0;
 
+    virtual bool saveDNG(std::string path) = 0;
+
     /**
      * Grab a camera frame and copy the result into image
      * @param image pointer to the image buffer.
@@ -595,6 +597,32 @@ public:
      * @return error message if an error occurred or done message otherwise.
      */
     virtual std::string setTriggerSelector(const int& mode) = 0 ;
+
+     /**
+     * set the acquisition mode
+     * @param mode : 0 = Single Frame, 1 = Continuous
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string setAcquisitionMode(const pylon_ros2_camera::ACQUISITION_MODE& mode) = 0 ;
+
+     /**
+     * set the acquisition mode
+     * @param mode : 0 = Single Frame, 1 = Continuous
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual bool setAcquisitionMode_(const pylon_ros2_camera::ACQUISITION_MODE& mode) = 0 ;
+
+    /**
+     * start acquisition
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string acquisitionStart() = 0;
+
+    /**
+     * stop acquisition
+     * @return error message if an error occurred or done message otherwise.
+     */
+    virtual std::string acquisitionStop() = 0;
 
      /**
      * get current trigger selector status   

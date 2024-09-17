@@ -74,6 +74,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 
 #include <cv_bridge/cv_bridge.h>
+#include <boost/format.hpp>
 
 #include <image_transport/image_transport.hpp>
 #include <image_transport/camera_publisher.hpp>
@@ -167,6 +168,8 @@ protected:
    * @return false if an error occurred
    */
   bool initAndRegister();
+
+  bool postInitConfiguration();
 
   /**
    * @brief Start the camera and initialize the messages
@@ -337,6 +340,13 @@ protected:
   std::string setAcquisitionFrameCount(const int& frameCount);
 
   /**
+   * @brief Method to set the camera acquisition mode
+   * @param mode acquisition mode.
+   * @return success boolean
+   */
+  bool setAcquisitionMode(const int& mode);
+
+  /**
    * @brief Method to set the trigger selector   
    * @param mode : 0 = Frame Start, 1 = Frame Burst Start (ace USB) / Acquisition Start (ace GigE)
    * @return error message if an error occurred or done message otherwise.
@@ -349,6 +359,18 @@ protected:
    * @return error message if an error occurred or done message otherwise.
    */
   std::string setTriggerMode(const bool& value);
+
+  /**
+   * @brief Method to start Acquisition   
+   * @return error message if an error occurred or done message otherwise.
+   */
+  std::string acquisitionStart();
+
+  /**
+   * @brief Method to stop Acquisition   
+   * @return error message if an error occurred or done message otherwise.
+   */
+  std::string acquisitionStop();
 
   /**
    * @brief Method to execute a software trigger   
@@ -764,6 +786,14 @@ protected:
   void setSensorReadoutModeCallback(const std::shared_ptr<SetIntegerSrv::Request> request,
                                     std::shared_ptr<SetIntegerSrv::Response> response);
   
+  /**
+   * @brief Service callback for setting the acquisition mode
+   * @param req request
+   * @param res response
+   */
+  void setAcquisitionModeCallback(const std::shared_ptr<SetIntegerSrv::Request> request,
+                                        std::shared_ptr<SetIntegerSrv::Response> response);
+
   /**
    * @brief Service callback for setting the acquisition frame count
    * @param req request
@@ -1185,6 +1215,22 @@ protected:
                                       std::shared_ptr<SetBoolSrv::Response> response);
 
   /**
+   * @brief Service callback for acquistion start
+   * @param req request
+   * @param res response
+   */
+  void acquisitionStartCallback(const std::shared_ptr<TriggerSrv::Request> request,
+                                      std::shared_ptr<TriggerSrv::Response> response);
+
+  /**
+   * @brief Service callback for acquistion stop
+   * @param req request
+   * @param res response
+   */
+  void acquisitionStopCallback(const std::shared_ptr<TriggerSrv::Request> request,
+                                      std::shared_ptr<TriggerSrv::Response> response);
+
+  /**
    * @brief Service callback for executing a software trigger
    * @param req request
    * @param res response
@@ -1390,6 +1436,8 @@ protected:
    */
   bool isSleeping();
 
+  std::string getNextImageFilename(uint64_t ts);
+
 protected:
 
   // camera
@@ -1450,6 +1498,7 @@ protected:
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_light_source_preset_srv_;
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_white_balance_auto_srv_;
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_sensor_readout_mode_srv_;
+  rclcpp::Service<SetIntegerSrv>::SharedPtr set_acquisition_mode_srv_;
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_acquisition_frame_count_srv_;
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_trigger_selector_srv_;
   rclcpp::Service<SetIntegerSrv>::SharedPtr set_trigger_source_srv_;
@@ -1505,6 +1554,8 @@ protected:
   rclcpp::Service<SetBoolSrv>::SharedPtr enable_sync_free_run_timer_srv_;
   
   rclcpp::Service<TriggerSrv>::SharedPtr execute_software_trigger_srv_;
+  rclcpp::Service<TriggerSrv>::SharedPtr acquisition_start_srv_;
+  rclcpp::Service<TriggerSrv>::SharedPtr acquisition_stop_srv_;
   rclcpp::Service<TriggerSrv>::SharedPtr save_user_set_srv_;
   rclcpp::Service<TriggerSrv>::SharedPtr load_user_set_srv_;
   rclcpp::Service<TriggerSrv>::SharedPtr reset_device_srv_;
@@ -1518,6 +1569,9 @@ protected:
   rclcpp_action::Server<GrabImagesAction>::SharedPtr grab_imgs_raw_as_;
   rclcpp_action::Server<GrabImagesAction>::SharedPtr grab_imgs_rect_as_;
 
+  rclcpp::CallbackGroup::SharedPtr callback_group_services;
+  rclcpp::CallbackGroup::SharedPtr callback_group_timer;
+
   // spinning thread
   rclcpp::TimerBase::SharedPtr timer_;
   // mutex
@@ -1528,6 +1582,9 @@ protected:
   std::array<float, 256> brightness_exp_lut_;
 
   bool is_sleeping_;
+
+  boost::format filename_format_;
+  int image_counter_ = 0;
 
   // diagnostics
   diagnostic_updater::Updater diagnostics_updater_;

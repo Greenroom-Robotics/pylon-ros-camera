@@ -198,6 +198,15 @@ public:
 
     virtual int getTriggerMode();
 
+    virtual bool setAcquisitionMode_(const pylon_ros2_camera::ACQUISITION_MODE& mode);
+    virtual std::string setAcquisitionMode(const pylon_ros2_camera::ACQUISITION_MODE& mode);
+
+    virtual int getAcquisitionMode();
+
+    virtual std::string acquisitionStart();
+
+    virtual std::string acquisitionStop();
+
     virtual std::string executeSoftwareTrigger();
 
     virtual std::string setTriggerSource(const int& source);
@@ -359,6 +368,7 @@ protected:
     typedef typename CameraTraitT::UserOutputSelectorEnums UserOutputSelectorEnums;
     typedef typename CameraTraitT::SensorReadoutModeEnums SensorReadoutModeEnums;
     typedef typename CameraTraitT::AcquisitionStatusSelectorEnums AcquisitionStatusSelectorEnums;
+    typedef typename CameraTraitT::AcquisitionModeEnums AcquisitionModeEnums;
     typedef typename CameraTraitT::TriggerSelectorEnums TriggerSelectorEnums;
     typedef typename CameraTraitT::TriggerModeEnums TriggerModeEnums;
     typedef typename CameraTraitT::TriggerSourceEnums TriggerSourceEnums;
@@ -397,6 +407,8 @@ protected:
                                        const float& current_brightness);
 
     virtual bool grab(Pylon::CGrabResultPtr& grab_result);
+
+    virtual bool saveDNG(std::string path);
 
     virtual bool setupSequencer(const std::vector<float>& exposure_times,
                                 std::vector<float>& exposure_times_set);

@@ -31,6 +31,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -43,6 +44,13 @@ enum SHUTTER_MODE
     SM_GLOBAL = 1,
     SM_GLOBAL_RESET_RELEASE = 2,
     SM_DEFAULT =  -1,
+};
+
+enum ACQUISITION_MODE
+{
+    AM_SINGLE = 0,
+    AM_CONTINUOUS = 1,
+    AM_DEFAULT =  -1,
 };
 
 class PylonROS2CameraParameter
@@ -88,6 +96,11 @@ public:
     const double& frameRate() const;
 
     /**
+     * Getter for the acquisition_frame_rate_ read from ros-parameter server
+     */
+    const double& acquisitionFrameRate() const;
+
+    /**
      * Getter for the image_encoding_ read from ros-parameter server
      */
     const std::string& imageEncoding() const;
@@ -102,6 +115,11 @@ public:
      * The frame rate needs to be updated with the value the camera supports
      */
     void setFrameRate(rclcpp::Node& nh, const double& frame_rate);
+
+    /**
+     * Setter for the acquisition_frame_rate_ initially set from ros-parameter server
+     */
+    void setAcquisitionFrameRate(rclcpp::Node& nh, const double& frame_rate);
 
     /**
      * Getter for the camera_info_url set from ros-parameter server
@@ -281,6 +299,15 @@ public:
     SHUTTER_MODE shutter_mode_;
 
     /**
+      Acquisition mode
+    */
+    ACQUISITION_MODE acquisition_mode_;
+
+    std::optional<int> line_selector_;
+    std::optional<bool> trigger_mode_;
+    std::optional<int> trigger_source_;
+
+    /**
      * Flag that indicates if the camera has a flash connected which should be on on exposure
      * Only supported for GigE cameras. Default: false
      */
@@ -326,6 +353,10 @@ public:
     */
     int grab_strategy_;
 
+    bool save_dng_;
+
+    std::string filename_format_;
+
 
 protected:
     /**
@@ -353,6 +384,11 @@ protected:
      * Calling the GrabImages-Action can result in a higher framerate
      */
     double frame_rate_;
+
+    /**
+     * The desired acquisition frame rate of the camera.
+     */
+    double acquisition_frame_rate_;
 
     /**
      * The CameraInfo URL (Uniform Resource Locator) where the optional
